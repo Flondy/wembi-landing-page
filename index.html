@@ -1,0 +1,1620 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <title>Wembi – Das süchtig machende One-Tap Game</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Wembi ist ein schnelles, minimalistisches One-Tap Arcade Game. Spring durch die Lücken, knacke deinen Highscore und fordere deine Freunde heraus." />
+
+  <!-- Retro/Pixelfont + saubere UI-Schrift -->
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --turquoise: #04e5ff;
+      --turquoise-dark: #00c2da;
+      --grey: #e5e5e5;
+      --dark-teal: #005f66;
+      --yellow: #ffb300;
+      --pink: #ff2b85;
+      --text-dark: #042628;
+      --bg: #031b1c;
+      --radius-xl: 24px;
+      --radius-full: 999px;
+      --shadow-soft: 0 16px 40px rgba(0, 0, 0, 0.18);
+      --shadow-soft-sm: 0 8px 20px rgba(0, 0, 0, 0.16);
+      --transition-fast: 0.18s ease-out;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: "Poppins", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+      background: radial-gradient(circle at top, #02363b 0, #020c0d 45%, #000 100%);
+      color: #f7ffff;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    img {
+      max-width: 100%;
+      display: block;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    /* Layout */
+
+    .page {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 40;
+      backdrop-filter: blur(14px);
+      background: linear-gradient(to bottom,
+        rgba(0, 17, 19, 0.9),
+        rgba(0, 17, 19, 0.78),
+        transparent
+      );
+      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+    }
+
+    .nav {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 14px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .nav-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .logo-bird {
+      width: 38px;
+      height: 38px;
+      background: var(--turquoise);
+      border-radius: 8px;
+      position: relative;
+      box-shadow: var(--shadow-soft-sm);
+    }
+
+    .logo-bird-eye {
+      position: absolute;
+      width: 10px;
+      height: 10px;
+      background: #000;
+      right: 7px;
+      top: 9px;
+    }
+
+    .logo-bird-eye::after {
+      content: "";
+      position: absolute;
+      width: 4px;
+      height: 4px;
+      background: #fff;
+      top: 1px;
+      right: 1px;
+    }
+
+    .logo-bird-beak {
+      position: absolute;
+      width: 18px;
+      height: 12px;
+      background: var(--yellow);
+      right: -16px;
+      top: 15px;
+    }
+
+    .nav-title {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .nav-game-name {
+      font-family: "Press Start 2P", system-ui;
+      letter-spacing: 0.05em;
+      font-size: 11px;
+      text-transform: uppercase;
+    }
+
+    .nav-sub {
+      font-size: 11px;
+      opacity: 0.7;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      font-size: 13px;
+    }
+
+    .nav-link {
+      cursor: pointer;
+      opacity: 0.85;
+      position: relative;
+      padding-bottom: 3px;
+    }
+
+    .nav-link::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      bottom: 0;
+      width: 0;
+      height: 2px;
+      border-radius: 999px;
+      background: linear-gradient(90deg, var(--turquoise), var(--pink));
+      transition: width var(--transition-fast);
+    }
+
+    .nav-link:hover::after {
+      width: 100%;
+    }
+
+    .nav-cta {
+      padding: 9px 16px;
+      border-radius: 999px;
+      border: none;
+      background: linear-gradient(135deg, var(--turquoise), var(--pink));
+      color: #001012;
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.09em;
+      cursor: pointer;
+      box-shadow: var(--shadow-soft-sm);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .nav-cta span {
+      font-size: 14px;
+    }
+
+    .mobile-only {
+      display: none;
+    }
+
+    /* Hero */
+
+    .hero {
+      max-width: 1120px;
+      margin: 10px auto 60px;
+      padding: 32px 20px 0;
+      display: grid;
+      grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+      gap: 32px;
+      align-items: center;
+    }
+
+    .hero-lead {
+      font-family: "Press Start 2P", system-ui;
+      color: var(--turquoise);
+      font-size: 11px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      margin-bottom: 18px;
+      opacity: 0.85;
+    }
+
+    .hero-title {
+      font-family: "Press Start 2P", system-ui;
+      font-size: clamp(22px, 3.2vw, 30px);
+      line-height: 1.35;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      margin-bottom: 18px;
+    }
+
+    .hero-title span {
+      color: var(--yellow);
+    }
+
+    .hero-text {
+      font-size: 15px;
+      max-width: 460px;
+      opacity: 0.9;
+      margin-bottom: 20px;
+    }
+
+    .hero-badges {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 26px;
+      font-size: 12px;
+    }
+
+    .badge {
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      padding: 5px 10px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      opacity: 0.9;
+      background: rgba(0, 0, 0, 0.24);
+    }
+
+    .badge-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--turquoise);
+    }
+
+    .badge-pink .badge-dot {
+      background: var(--pink);
+    }
+
+    .hero-cta-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 14px;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .btn-primary {
+      position: relative;
+      border: none;
+      border-radius: var(--radius-xl);
+      padding: 14px 22px;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 13px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      cursor: pointer;
+      background: linear-gradient(135deg, var(--turquoise), var(--pink));
+      color: #001015;
+      box-shadow: var(--shadow-soft);
+      transform: translateY(0);
+      transition: transform var(--transition-fast), box-shadow var(--transition-fast), filter var(--transition-fast);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      filter: brightness(1.05);
+      box-shadow: 0 22px 50px rgba(0, 0, 0, 0.5);
+    }
+
+    .btn-primary small {
+      font-size: 10px;
+      opacity: 0.8;
+    }
+
+    .btn-ghost {
+      border-radius: var(--radius-full);
+      border: 1px solid rgba(255, 255, 255, 0.26);
+      padding: 11px 16px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      cursor: pointer;
+      background: rgba(0, 0, 0, 0.18);
+      transition: background var(--transition-fast), transform var(--transition-fast), border-color var(--transition-fast);
+    }
+
+    .btn-ghost:hover {
+      background: rgba(0, 0, 0, 0.32);
+      transform: translateY(-1px);
+      border-color: rgba(255, 255, 255, 0.5);
+    }
+
+    .btn-icon-circle {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      border: 2px solid rgba(0, 0, 0, 0.7);
+      background: var(--yellow);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 900;
+      font-size: 11px;
+    }
+
+    .hero-meta {
+      font-size: 11px;
+      opacity: 0.7;
+    }
+
+    /* Hero Mockup */
+
+    .hero-mock {
+      position: relative;
+      justify-self: center;
+      max-width: 360px;
+      width: 100%;
+    }
+
+    .phone-frame {
+      position: relative;
+      border-radius: 32px;
+      padding: 12px;
+      background: linear-gradient(145deg, #ffffff, #a4b7bf);
+      box-shadow: var(--shadow-soft);
+      aspect-ratio: 9 / 16;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .phone-inner {
+      border-radius: 24px;
+      background: var(--turquoise);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .phone-status-bar {
+      height: 22px;
+      background: rgba(0, 0, 0, 0.04);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 12px;
+      font-size: 10px;
+      opacity: 0.7;
+    }
+
+    .phone-notch {
+      width: 82px;
+      height: 11px;
+      border-radius: 0 0 14px 14px;
+      background: #ffffff;
+      margin: -4px auto 0;
+    }
+
+    .phone-game-area {
+      flex: 1;
+      background: var(--grey);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+    }
+
+    .phone-slider-arrows {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: calc(100% + 100px);  /* Breite des Bereichs um das Handy herum */
+      transform: translate(-50%, -50%);
+      display: flex;
+      justify-content: space-between;
+      pointer-events: none; /* Wichtig, damit Klick nur auf den Buttons zählt */
+      z-index: 10;    
+    }
+
+    .phone-arrow {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: rgba(0,0,0,0.55);
+      border: 1px solid rgba(255,255,255,0.6);
+      color: #fff;
+      font-size: 22px;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      pointer-events: all;
+      transition: 0.2s ease;
+    }
+
+    /* Tap-Bounce für interaktive Buttons */
+    .phone-arrow {
+      transition: transform 0.12s ease-out;
+    }
+
+    .phone-arrow.is-tapping {
+      transform: scale(0.88); /* kurz kleiner, dann zurück */
+    }
+
+    .phone-arrow:hover {
+      background: rgba(255,255,255,0.25);
+      transform: scale(1.15);
+    }
+
+    .phone-screen-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover; /* oder contain – je nachdem, was dir besser gefällt */
+      transition: opacity 0.35s ease-in-out, transform 0.35s ease-in-out;
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    /* Wird kurz aktiv, wenn das Bild gewechselt wird */
+    .phone-screen-img.is-changing {
+      opacity: 0;
+      transform: scale(0.98);
+    }
+
+   .phone-slider-dots {
+      position: absolute;
+      bottom: 8px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 6px;
+    }
+
+    .phone-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.7);
+      background: rgba(0, 0, 0, 0.4);
+      cursor: pointer;
+      opacity: 0.6;
+      transition: opacity 0.15s ease-out, transform 0.15s ease-out, background 0.15s ease-out;
+    }
+
+    .phone-dot.active {
+      background: #fff;
+      opacity: 1;
+      transform: scale(1.2);
+    }
+
+    .phone-top-bar {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 64px;
+      background: var(--turquoise);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 20px;
+    }
+
+    .phone-bird-avatar {
+      width: 34px;
+      height: 34px;
+      background: #f1f1f1;
+      border-radius: 4px;
+      position: relative;
+    }
+
+    .phone-bird-avatar::before {
+      content: "";
+      position: absolute;
+      width: 9px;
+      height: 9px;
+      background: #000;
+      top: 9px;
+      left: 10px;
+    }
+
+    .phone-bird-avatar::after {
+      content: "";
+      position: absolute;
+      width: 12px;
+      height: 12px;
+      background: var(--yellow);
+      bottom: 6px;
+      left: 11px;
+    }
+
+    .phone-score {
+      font-family: "Press Start 2P";
+      font-size: 12px;
+    }
+
+    .phone-big-bird {
+      width: 90px;
+      height: 90px;
+      background: var(--turquoise);
+      position: relative;
+      box-shadow: 0 10px 0 rgba(0, 0, 0, 0.06);
+    }
+
+    .phone-big-bird-eye {
+      position: absolute;
+      width: 16px;
+      height: 16px;
+      background: #000;
+      right: 16px;
+      top: 18px;
+    }
+
+    .phone-big-bird-eye::after {
+      content: "";
+      position: absolute;
+      width: 7px;
+      height: 7px;
+      background: #fff;
+      top: 1px;
+      right: 1px;
+    }
+
+    .phone-big-bird-beak {
+      position: absolute;
+      width: 60px;
+      height: 26px;
+      background: var(--yellow);
+      right: -58px;
+      top: 32px;
+    }
+
+    .phone-bottom-bar {
+      height: 70px;
+      background: var(--turquoise);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: "Press Start 2P";
+      font-size: 16px;
+      letter-spacing: 0.16em;
+    }
+
+    .phone-bottom-bar span {
+      margin-right: 2px;
+    }
+
+    .phone-floating-pill {
+      position: absolute;
+      width: 12px;
+      height: 60px;
+      background: #fff;
+      top: 18px;
+      border-radius: 6px;
+    }
+
+    .phone-floating-circle {
+      position: absolute;
+      width: 190px;
+      height: 190px;
+      border-radius: 50%;
+      border: 20px solid #fff;
+      box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.04);
+    }
+
+    .phone-floating-spokes {
+      position: absolute;
+      width: 70px;
+      height: 70px;
+      border-radius: 50%;
+      background: var(--turquoise);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .phone-spoke {
+      position: absolute;
+      width: 8px;
+      height: 52px;
+      background: var(--turquoise);
+    }
+
+    .phone-spoke:nth-child(1) {
+      transform: rotate(0deg);
+    }
+
+    .phone-spoke:nth-child(2) {
+      transform: rotate(90deg);
+    }
+
+    .phone-spoke:nth-child(3) {
+      transform: rotate(210deg);
+    }
+
+    /* Sections */
+
+    section {
+      padding: 30px 20px 50px;
+    }
+
+    .section-inner {
+      max-width: 1120px;
+      margin: 0 auto;
+    }
+
+    .section-header {
+      margin-bottom: 26px;
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 16px;
+    }
+
+    .section-title {
+      font-family: "Press Start 2P";
+      font-size: 14px;
+      letter-spacing: 0.13em;
+      text-transform: uppercase;
+    }
+
+    .section-subtitle {
+      font-size: 13px;
+      opacity: 0.75;
+      max-width: 420px;
+    }
+
+    /* Gameplay section */
+
+    .gameplay-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+      gap: 22px;
+      align-items: center;
+    }
+
+    .steps {
+      display: grid;
+      gap: 12px;
+    }
+
+    .step {
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr);
+      gap: 14px;
+      align-items: flex-start;
+      padding: 12px 14px;
+      border-radius: var(--radius-xl);
+      background: rgba(0, 0, 0, 0.35);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .step-number {
+      font-family: "Press Start 2P";
+      font-size: 12px;
+      color: var(--turquoise);
+      margin-top: 4px;
+    }
+
+    .step-title {
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .step-text {
+      font-size: 13px;
+      opacity: 0.85;
+    }
+
+    .gameplay-circle {
+      max-width: 280px;
+      justify-self: center;
+      background: radial-gradient(circle at center, #ffffff, #f5f5f5);
+      padding: 24px;
+      border-radius: 999px;
+      position: relative;
+      box-shadow: var(--shadow-soft);
+    }
+
+    .gameplay-circle-inner {
+      border-radius: 999px;
+      border: 12px solid var(--turquoise);
+      padding: 32px;
+      position: relative;
+    }
+
+    .gameplay-score {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-family: "Press Start 2P";
+      font-size: 22px;
+      color: var(--turquoise);
+      text-shadow: 0 0 16px rgba(0, 0, 0, 0.45);
+    }
+
+    .gameplay-gap {
+      position: absolute;
+      width: 20px;
+      height: 26px;
+      background: #ffffff;
+      border-radius: 999px;
+      right: -1px;
+      top: 50%;
+      transform: translateY(-50%);
+      box-shadow: -4px 0 0 rgba(0, 0, 0, 0.12);
+    }
+
+    .gameplay-bird {
+      width: 40px;
+      height: 40px;
+      background: var(--turquoise);
+      position: absolute;
+      left: 54%;
+      top: 38%;
+      transform: rotate(-22deg);
+      box-shadow: 0 10px 0 rgba(0, 0, 0, 0.08);
+    }
+
+    .gameplay-bird-eye {
+      position: absolute;
+      width: 9px;
+      height: 9px;
+      background: #000;
+      right: 7px;
+      top: 9px;
+    }
+
+    .gameplay-bird-eye::after {
+      content: "";
+      position: absolute;
+      width: 4px;
+      height: 4px;
+      background: #fff;
+      right: 1px;
+      top: 1px;
+    }
+
+    .gameplay-bird-beak {
+      position: absolute;
+      width: 24px;
+      height: 14px;
+      background: var(--yellow);
+      right: -22px;
+      top: 16px;
+    }
+
+    /* Features */
+
+    .feature-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .feature-card {
+      padding: 16px 16px 14px;
+      border-radius: 20px;
+      background: rgba(0, 0, 0, 0.42);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      box-shadow: 0 12px 34px rgba(0, 0, 0, 0.4);
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      font-size: 13px;
+    }
+
+    .feature-icon {
+      width: 26px;
+      height: 26px;
+      border-radius: 10px;
+      background: rgba(4, 229, 255, 0.19);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      margin-bottom: 4px;
+    }
+
+    .feature-title {
+      font-weight: 600;
+      font-size: 14px;
+    }
+
+    .feature-tag {
+      font-family: "Press Start 2P";
+      font-size: 9px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: rgba(255, 255, 255, 0.7);
+      margin-top: 4px;
+    }
+
+    /* Screenshots */
+
+    .screenshots-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .screen-card {
+      border-radius: 20px;
+      overflow: hidden;
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4);
+      position: relative;
+      isolation: isolate;
+      aspect-ratio: 9 / 16;
+    }
+
+    .screen-label {
+      position: absolute;
+      bottom: 10px;
+      left: 10px;
+      padding: 4px 9px;
+      border-radius: 999px;
+      background: rgba(0, 0, 0, 0.6);
+      font-size: 11px;
+    }
+
+    .screen-card img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      filter: saturate(1.05);
+      transform: scale(1);
+      transition: transform var(--transition-fast), filter var(--transition-fast);
+    }
+
+    .screen-card:hover img {
+      transform: scale(1.03);
+      filter: saturate(1.25);
+    }
+
+    /* Highscore / Call to action */
+
+    .cta-panel {
+      border-radius: 26px;
+      padding: 22px 20px;
+      background: radial-gradient(circle at top left, rgba(4, 229, 255, 0.4), rgba(0, 0, 0, 0.95));
+      display: grid;
+      grid-template-columns: minmax(0, 1.2fr) minmax(0, 0.9fr);
+      gap: 20px;
+      align-items: center;
+      box-shadow: 0 18px 46px rgba(0, 0, 0, 0.8);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+    }
+
+    .cta-text-main {
+      font-family: "Press Start 2P";
+      font-size: 14px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      margin-bottom: 12px;
+    }
+
+    .cta-text-sub {
+      font-size: 14px;
+      opacity: 0.88;
+      margin-bottom: 14px;
+    }
+
+    .cta-highlight {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 12px;
+      border-radius: 999px;
+      background: rgba(0, 0, 0, 0.45);
+      font-size: 12px;
+      margin-bottom: 18px;
+    }
+
+    .cta-score-badge {
+      width: 30px;
+      height: 30px;
+      border-radius: 12px;
+      background: var(--yellow);
+      color: #001015;
+      font-family: "Press Start 2P";
+      font-size: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.6);
+    }
+
+    .cta-mini-meta {
+      font-size: 11px;
+      opacity: 0.7;
+    }
+
+    .cta-side {
+      justify-self: end;
+      text-align: right;
+      font-size: 12px;
+      opacity: 0.85;
+    }
+
+    .cta-side span {
+      display: inline-block;
+      margin-bottom: 6px;
+      font-weight: 600;
+    }
+
+    /* About Dev */
+
+    .about-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.2fr) minmax(0, 0.9fr);
+      gap: 22px;
+      align-items: stretch;
+    }
+
+    .about-card {
+      border-radius: 22px;
+      padding: 18px 18px 16px;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      background: rgba(0, 0, 0, 0.55);
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.8);
+      font-size: 13px;
+    }
+
+    .about-tag {
+      font-family: "Press Start 2P";
+      font-size: 9px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: rgba(255, 255, 255, 0.7);
+      margin-bottom: 10px;
+    }
+
+    .about-title {
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 10px;
+    }
+
+    .about-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .chip {
+      padding: 6px 12px;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      font-size: 12px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(0, 0, 0, 0.35);
+    }
+
+    .chip-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--turquoise);
+    }
+
+    .chip-dot.pink {
+      background: var(--pink);
+    }
+
+    .about-side-card {
+      border-radius: 22px;
+      padding: 16px 16px 14px;
+      background: radial-gradient(circle at top, var(--dark-teal), #000);
+      border: 1px solid rgba(0, 0, 0, 0.9);
+      font-size: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .about-side-heading {
+      font-family: "Press Start 2P";
+      font-size: 11px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+
+    .about-score-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .about-score-number {
+      font-family: "Press Start 2P";
+      font-size: 24px;
+      background: #fff;
+      color: var(--dark-teal);
+      border-radius: 18px;
+      padding: 6px 12px;
+      box-shadow: 0 10px 26px rgba(0, 0, 0, 0.7);
+    }
+
+    .about-mini {
+      font-size: 11px;
+      opacity: 0.8;
+    }
+
+    /* Footer */
+
+    footer {
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      padding: 18px 20px 26px;
+      margin-top: 20px;
+    }
+
+    .footer-inner {
+      max-width: 1120px;
+      margin: 0 auto;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      font-size: 11px;
+      opacity: 0.72;
+    }
+
+    .footer-social {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .social-pill {
+      width: 26px;
+      height: 26px;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      cursor: pointer;
+      background: rgba(0, 0, 0, 0.25);
+      transition: transform var(--transition-fast), border-color var(--transition-fast), background var(--transition-fast);
+    }
+
+    .social-pill:hover {
+      transform: translateY(-1px);
+      border-color: var(--turquoise);
+      background: rgba(0, 0, 0, 0.5);
+    }
+
+    /* Responsive */
+
+    @media (max-width: 880px) {
+      .nav-links {
+        display: none;
+      }
+      .mobile-only {
+        display: inline-flex;
+      }
+      .hero {
+        grid-template-columns: minmax(0, 1fr);
+        text-align: left;
+      }
+      .hero-mock {
+        order: -1;
+        max-width: 320px;
+      }
+      .hero-title {
+        font-size: 22px;
+      }
+      .gameplay-grid {
+        grid-template-columns: minmax(0, 1fr);
+      }
+      .feature-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+      .screenshots-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+      .cta-panel,
+      .about-grid {
+        grid-template-columns: minmax(0, 1fr);
+      }
+      .cta-side {
+        text-align: left;
+        justify-self: start;
+      }
+    }
+
+    @media (max-width: 600px) {
+      .feature-grid {
+        grid-template-columns: minmax(0, 1fr);
+      }
+      .screenshots-grid {
+        grid-template-columns: minmax(0, 1fr);
+      }
+      .hero {
+        margin-top: 8px;
+      }
+      header {
+        backdrop-filter: blur(10px);
+      }
+    }
+  </style>
+</head>
+
+<body>
+<div class="page">
+  <!-- NAVBAR -->
+  <header>
+    <div class="nav">
+      <div class="nav-left">
+        <div class="logo-bird">
+          <div class="logo-bird-eye"></div>
+          <div class="logo-bird-beak"></div>
+        </div>
+        <div class="nav-title">
+          <div class="nav-game-name">WEMBI</div>
+          <div class="nav-sub">One-Tap Arcade von Flondy Dev.</div>
+        </div>
+      </div>
+
+      <nav class="nav-links">
+        <div class="nav-link" data-scroll="#gameplay">Gameplay</div>
+        <div class="nav-link" data-scroll="#features">Features</div>
+        <div class="nav-link" data-scroll="#screenshots">Screenshots</div>
+        <div class="nav-link" data-scroll="#about">Über den Dev</div>
+      </nav>
+
+      <button class="nav-cta" onclick="window.location.href='https://play.google.com/store/apps/details?id=dev.flondy.wembi'">
+        <span>▶</span> Jetzt spielen
+      </button>
+
+      <button class="nav-cta mobile-only" onclick="window.location.href='https://play.google.com/store/apps/details?id=dev.flondy.wembi'">
+        ▶ Play
+      </button>
+    </div>
+  </header>
+
+  <!-- HERO -->
+  <main>
+    <section class="hero">
+      <div>
+        <div class="hero-lead">Minimalistisches One-Tap Chaos</div>
+        <h1 class="hero-title">
+          Triff die Lücke.<br />
+          <span>Rette den Pixel-Vogel.</span>
+        </h1>
+        <p class="hero-text">
+          Wembi ist ein schnelles, ultra-simpes, aber fies suchterzeugendes Arcade-Game.
+          Tippe im richtigen Moment, spring durch die Lücken und push deine Highscores.
+        </p>
+
+        <div class="hero-badges">
+          <div class="badge">
+            <div class="badge-dot"></div>
+            <span>One-Tap Steuerung</span>
+          </div>
+          <div class="badge badge-pink">
+            <div class="badge-dot"></div>
+            <span>Kurze, knackige Runden</span>
+          </div>
+          <div class="badge">
+            <div class="badge-dot"></div>
+            <span>Teile deinen Rekord mit Freunden</span>
+          </div>
+        </div>
+
+        <div class="hero-cta-row">
+          <button class="btn-primary" onclick="window.location.href='https://play.google.com/store/apps/details?id=dev.flondy.wembi'">
+            <span>⬇ Installieren</span>
+            <small>Google&nbsp;Play</small>
+          </button>
+
+          <button class="btn-ghost" data-scroll="#screenshots">
+            <div class="btn-icon-circle">▶</div>
+            Trailer &amp; Screens
+          </button>
+        </div>
+        <div class="hero-meta">
+          Kein Pay-to-Win, kein Account nötig. Nur du, ein kreisender Level und ein sehr empfindlicher Vogel.
+        </div>
+      </div>
+
+      <!-- PHONE MOCKUP -->
+      <div class="hero-mock">
+        <div class="phone-frame">
+          <div class="phone-inner">
+            <div class="phone-notch"></div>
+            <div class="phone-slider-arrows">
+              <button id="arrowLeft" class="phone-arrow">‹</button>
+              <button id="arrowRight" class="phone-arrow">›</button>
+            </div>
+              <div class="phone-game-area">
+                <img
+                  src="img/Screenshot_2025.12.12_00.59.19.727.png"
+                  alt="Wembi Startscreen"
+                  class="phone-screen-img"
+                  id="phoneScreen"
+                />
+                <div class="phone-slider-dots" id="phoneDots"></div>
+              </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- GAMEPLAY -->
+    <section id="gameplay">
+      <div class="section-inner">
+        <div class="section-header">
+          <h2 class="section-title">Gameplay</h2>
+          <p class="section-subtitle">
+            Ein Finger, ein Kreis, eine Lücke. Perfekt für kurze Sessions in der Bahn,
+            beim Warten oder immer dann, wenn du „nur noch eine Runde“ willst.
+          </p>
+        </div>
+
+        <div class="gameplay-grid">
+          <div class="steps">
+            <div class="step">
+              <div class="step-number">1</div>
+              <div>
+                <div class="step-title">Tippe im richtigen Moment</div>
+                <p class="step-text">
+                  Dein Vogel dreht sich im Kreis. Wenn die Lücke kommt, tippst du.
+                  Triffst du sie, geht’s weiter – verfehlst du, ist es vorbei.
+                </p>
+              </div>
+            </div>
+
+            <div class="step">
+              <div class="step-number">2</div>
+              <div>
+                <div class="step-title">Jeder Jump = 1 Punkt</div>
+                <p class="step-text">
+                  Jede erfolgreich getroffene Lücke bringt dir einen Punkt.
+                  Der Kreis dreht sich, du bleibst cool – oder auch nicht.
+                </p>
+              </div>
+            </div>
+
+            <div class="step">
+              <div class="step-number">3</div>
+              <div>
+                <div class="step-title">Highscore knacken &amp; teilen</div>
+                <p class="step-text">
+                  Schlag deinen eigenen Rekord oder fordere deine Freunde heraus.
+                  Teile deinen Score direkt aus dem Game über Social Media.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div class="gameplay-circle">
+            <div class="gameplay-circle-inner">
+              <div class="gameplay-score">4</div>
+              <div class="gameplay-gap"></div>
+              <div class="gameplay-bird">
+                <div class="gameplay-bird-eye"></div>
+                <div class="gameplay-bird-beak"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- FEATURES -->
+    <section id="features">
+      <div class="section-inner">
+        <div class="section-header">
+          <h2 class="section-title">Features</h2>
+          <p class="section-subtitle">
+            Designed wie ein klassisches Mobile-Arcade, aber mit „One more try“-Feeling.
+            Simpler geht’s nicht – schwerer aber auch nicht.
+          </p>
+        </div>
+
+        <div class="feature-grid">
+          <div class="feature-card">
+            <div class="feature-icon">🎮</div>
+            <div class="feature-title">Pure One-Tap Steuerung</div>
+            <p>
+              Keine komplizierten Menüs, kein Tutorial-Roman.
+              Du tippst – der Vogel springt. Mehr musst du nicht wissen.
+            </p>
+            <div class="feature-tag">Sofort spielbar</div>
+          </div>
+
+          <div class="feature-card">
+            <div class="feature-icon">⚡</div>
+            <div class="feature-title">Ultra kurze Runden</div>
+            <p>
+              Perfekt für zwischendurch: Eine Runde dauert nur ein paar Sekunden.
+              Ideal, um „kurz“ zu spielen und 20 Minuten später immer noch dabei zu sein.
+            </p>
+            <div class="feature-tag">Snackable gaming</div>
+          </div>
+
+          <div class="feature-card">
+            <div class="feature-icon">📣</div>
+            <div class="feature-title">Highscore Sharing</div>
+            <p>
+              Du bist stolz auf deinen Score? Teile ihn direkt mit Freunden
+              und schau, wer wirklich die besten Reflexe hat.
+            </p>
+            <div class="feature-tag">Challenge deine crew</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SCREENSHOTS -->
+    <section id="screenshots">
+      <div class="section-inner">
+        <div class="section-header">
+          <h2 class="section-title">Screenshots</h2>
+          <p class="section-subtitle">
+            Clean, bunt, quadratisch. Hier ein paar Einblicke in das Game.
+            Ersetze die Bilder einfach mit deinen echten Screens aus dem Store.
+          </p>
+        </div>
+
+        <div class="screenshots-grid">
+          <!-- Ersetze src mit deinen echten Screenshot-Dateien -->
+          <div class="screen-card">
+            <img src="img/Screenshot_2025.12.12_00.59.19.727.png" alt="Wembi Startscreen" />
+            <div class="screen-label">Startscreen</div>
+          </div>
+          <div class="screen-card">
+            <img src="img/Screenshot_2025.12.12_01.00.20.044.png" alt="Wembi Gameplay" />
+            <div class="screen-label">Gameplay</div>
+          </div>
+          <div class="screen-card">
+            <img src="img/Screenshot_2025.12.12_01.00.42.260.png" alt="Wembi In-Game" />
+            <div class="screen-label">In-Game</div>
+          </div>
+          <div class="screen-card">
+            <img src="img/Screenshot_2025.12.12_01.00.46.494.png" alt="Wembi Game Over Screen" />
+            <div class="screen-label">Game Over</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- HIGHSCORE CTA -->
+    <section>
+      <div class="section-inner">
+        <div class="cta-panel">
+          <div>
+            <div class="cta-text-main">Schaffst du mehr als 4 Punkte?</div>
+            <div class="cta-text-sub">
+              Die ersten paar Runden fühlen sich easy an –
+              bis dein Timing nur eine Millisekunde daneben liegt.
+              Wembi belohnt Fokus, Rhythmus und ein bisschen Sturheit.
+            </div>
+
+            <div class="cta-highlight">
+              <div class="cta-score-badge">4</div>
+              <div>
+                <div>Knacke den Beispiel-Highscore</div>
+                <div class="cta-mini-meta">
+                  Poste deinen Rekord und verlinke <strong>Flondy&nbsp;Dev.</strong> auf Social Media.
+                </div>
+              </div>
+            </div>
+
+            <button class="btn-primary" onclick="window.location.href='https://play.google.com/store/apps/details?id=dev.flondy.wembi'">
+              ▶ Jetzt kostenlos ausprobieren
+            </button>
+          </div>
+
+          <div class="cta-side">
+            <span>Keine Registrierung. Keine versteckten Paywalls.</span>
+            <div>Nur ein sehr empfindlicher Vogel und dein Timing-Gefühl.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ABOUT DEV -->
+    <section id="about">
+      <div class="section-inner">
+        <div class="section-header">
+          <h2 class="section-title">Über Flondy Dev.</h2>
+          <p class="section-subtitle">
+            Wembi ist ein Herzensprojekt aus der Zeit, in der Mobile-Games
+            noch einfach, direkt und super-minimal waren – jetzt wieder neu entdeckt.
+          </p>
+        </div>
+
+        <div class="about-grid">
+          <div class="about-card">
+            <div class="about-tag">Indie Developer</div>
+            <div class="about-title">Von Hobby-Projekt zu Retro-Arcade</div>
+            <p>
+              Wembi entstand ursprünglich aus purem Bastel-Spaß:
+              einfache Formen, grelle Farben, klare Mechanik. Kein großes Studio,
+              sondern ein Entwickler, der Bock auf kleine, fokussierte Experimente hat.
+            </p>
+            <p>
+              Wenn dir das Game gefällt, freut sich Flondy Dev. über Feedback,
+              Bewertungen im Store oder einfach einen Screenshot deiner besten Runde.
+            </p>
+
+            <div class="about-links">
+              <a class="chip" href="https://play.google.com/store/apps/dev?id=6892475632884505831" target="_blank" rel="noopener">
+                <span class="chip-dot"></span>
+                Mehr Apps &amp; Spiele
+              </a>
+              <!-- Socials: Links später einfach ersetzen -->
+              <span class="chip">
+                <span class="chip-dot pink"></span>
+                @FlondyDev auf Social Media
+              </span>
+            </div>
+          </div>
+
+          <div class="about-side-card">
+            <div class="about-side-heading">Spiel in 10 Sekunden erklärt</div>
+            <div class="about-score-row">
+              <div class="about-score-number">1-Tap</div>
+              <div>
+                <div class="about-mini">
+                  Tippe nur, wenn die Lücke perfekt vor dir ist. Kein Tutorial,
+                  keine Buttons-Flut. Wenn du verlierst, bist du in 1 Sekunde wieder drin.
+                </div>
+              </div>
+            </div>
+
+            <div class="about-mini">
+              Du willst Feedback geben, Bugs melden oder einfach „nice Game“ sagen?
+              Schreib Flondy Dev. über die Kontaktdaten im Google-Play-Store.
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-inner">
+      <div>© <span id="year"></span> Wembi · Ein Indie-Game von Flondy Dev.</div>
+      <div class="footer-social">
+        <span>Folge dem Projekt:</span>
+        <!-- Ersetze # durch echte Links -->
+        <a href="#" class="social-pill" aria-label="Twitter / X">𝕏</a>
+        <a href="#" class="social-pill" aria-label="Instagram">IG</a>
+        <a href="https://play.google.com/store/apps/dev?id=6892475632884505831" class="social-pill" aria-label="Google Play Dev Seite">GP</a>
+      </div>
+    </div>
+  </footer>
+</div>
+
+<script>
+  // Smooth Scroll für In-Page Links
+  document.querySelectorAll("[data-scroll]").forEach(function (el) {
+    el.addEventListener("click", function () {
+      var target = document.querySelector(el.getAttribute("data-scroll"));
+      if (!target) return;
+      window.scrollTo({
+        top: target.offsetTop - 70,
+        behavior: "smooth"
+      });
+    });
+  });
+
+  // Liste deiner Screenshots im img-Ordner
+  const phoneScreens = [
+    "img/Screenshot_2025.12.12_00.59.19.727.png",
+    "img/Screenshot_2025.12.12_00.59.26.043.png",
+    "img/Screenshot_2025.12.12_00.59.45.077.png",
+    "img/Screenshot_2025.12.12_01.00.05.977.png",
+    "img/Screenshot_2025.12.12_01.00.20.044.png",
+    "img/Screenshot_2025.12.12_01.00.42.260.png",
+    "img/Screenshot_2025.12.12_01.00.45.477.png",
+    "img/Screenshot_2025.12.12_01.00.46.494.png"
+  ];
+
+  const phoneImg = document.getElementById("phoneScreen");
+  const dotsContainer = document.getElementById("phoneDots");
+
+  let currentScreen = 0;
+  let slideInterval;
+
+  function renderDots() {
+    dotsContainer.innerHTML = "";
+    phoneScreens.forEach((_, index) => {
+      const dot = document.createElement("div");
+      dot.className = "phone-dot" + (index === currentScreen ? " active" : "");
+      dot.addEventListener("click", () => {
+        currentScreen = index;
+        updateScreen();
+        restartInterval();
+      });
+      dotsContainer.appendChild(dot);
+    });
+  }
+
+    const arrowLeft = document.getElementById("arrowLeft");
+    const arrowRight = document.getElementById("arrowRight");
+
+    arrowLeft.addEventListener("click", () => {
+      currentScreen = (currentScreen - 1 + phoneScreens.length) % phoneScreens.length;
+      updateScreen();
+      restartInterval();
+    });
+
+    arrowRight.addEventListener("click", () => {
+      currentScreen = (currentScreen + 1) % phoneScreens.length;
+      updateScreen();
+      restartInterval();
+    });
+
+    function tapBounce(el) {
+    el.classList.add("is-tapping");
+    setTimeout(() => el.classList.remove("is-tapping"), 120);
+  }
+
+    arrowLeft.addEventListener("click", () => {
+    tapBounce(arrowLeft);
+    currentScreen = (currentScreen - 1 + phoneScreens.length) % phoneScreens.length;
+    updateScreen();
+    restartInterval();
+  });
+
+  arrowRight.addEventListener("click", () => {
+    tapBounce(arrowRight);
+    currentScreen = (currentScreen + 1) % phoneScreens.length;
+    updateScreen();
+    restartInterval();
+  });
+
+  function updateScreen() {
+    // Erst mal ausfaden
+    phoneImg.classList.add("is-changing");
+
+    // Nach kurzer Zeit Bild wechseln & wieder einblenden
+    setTimeout(() => {
+      phoneImg.src = phoneScreens[currentScreen];
+
+      // Wenn das neue Bild geladen ist: wieder einblenden
+      phoneImg.onload = () => {
+        phoneImg.classList.remove("is-changing");
+      };
+
+      renderDots();
+    }, 180); // Timing -> muss zu deiner CSS-Dauer passen (0.35s)
+  }
+
+  function nextScreen() {
+    currentScreen = (currentScreen + 1) % phoneScreens.length;
+    updateScreen();
+  }
+
+  function startInterval() {
+    slideInterval = setInterval(nextScreen, 3000); // alle 3 Sekunden
+  }
+
+  function restartInterval() {
+    clearInterval(slideInterval);
+    startInterval();
+  }
+
+  // init
+  updateScreen();
+  startInterval();
+
+  // Jahr im Footer automatisch
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>
