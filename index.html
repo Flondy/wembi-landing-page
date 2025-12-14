@@ -1547,18 +1547,6 @@
     const arrowLeft = document.getElementById("arrowLeft");
     const arrowRight = document.getElementById("arrowRight");
 
-    arrowLeft.addEventListener("click", () => {
-      currentScreen = (currentScreen - 1 + phoneScreens.length) % phoneScreens.length;
-      updateScreen();
-      restartInterval();
-    });
-
-    arrowRight.addEventListener("click", () => {
-      currentScreen = (currentScreen + 1) % phoneScreens.length;
-      updateScreen();
-      restartInterval();
-    });
-
     function tapBounce(el) {
     el.classList.add("is-tapping");
     setTimeout(() => el.classList.remove("is-tapping"), 120);
@@ -1618,3 +1606,4 @@
 </script>
 </body>
 </html>
+
