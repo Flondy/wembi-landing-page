@@ -1069,12 +1069,14 @@
 
     .footer-social {
       display: flex;
+      flex-wrap: wrap;
       align-items: center;
       gap: 10px;
     }
 
     .social-pill {
-      width: 26px;
+      min-width: 26px;
+      padding: 0 8px;
       height: 26px;
       border-radius: 999px;
       border: 1px solid rgba(255, 255, 255, 0.3);
@@ -1490,8 +1492,11 @@
       <div>© <span id="year"></span> Wembi · Ein Indie-Game von Flondy Dev.</div>
       <div class="footer-social">
         <span>Folge dem Projekt:</span>
-        <a href="https://x.com/Flondy_Dev" class="social-pill" aria-label="Flondy Dev. auf X" target="_blank" rel="noopener">𝕏</a>
+        <a href="https://t.me/Flondy" class="social-pill" aria-label="Flondy Dev. auf Telegram" target="_blank" rel="noopener">TG</a>
         <a href="https://www.instagram.com/flondy.dev" class="social-pill" aria-label="Flondy Dev. auf Instagram" target="_blank" rel="noopener">IG</a>
+        <a href="https://www.patreon.com/cw/Flondy" class="social-pill" aria-label="Flondy auf Patreon unterstützen" target="_blank" rel="noopener">Patreon</a>
+        <a href="https://www.paypal.com/paypalme/MSingle72" class="social-pill" aria-label="Per PayPal spenden" target="_blank" rel="noopener">Spenden</a>
+        <a href="https://linktr.ee/flondy" class="social-pill" aria-label="Alle Links von Flondy" target="_blank" rel="noopener">Linktree</a>
         <a href="https://play.google.com/store/apps/dev?id=6892475632884505831" class="social-pill" aria-label="Google Play Dev Seite">GP</a>
         <a href="https://flondy.github.io/app-store/impressum.html" class="social-pill">Impressum</a>
         <a href="mailto:flondy.dev@gmail.com" class="social-pill">Kontakt</a>
